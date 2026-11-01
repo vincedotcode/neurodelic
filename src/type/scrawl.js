@@ -82,14 +82,17 @@ export function renderScrawl(text, o = {}) {
     const y0 = pad + li * (6 + (o.lineGap ?? 3.2));
     for (const ch of line) {
       const g = GLYPHS[ch] ?? GLYPHS['?'];
+      // Proportional: each glyph takes its own width, so a narrow I doesn't leave a hole.
+      const xs = g.flatMap((pl) => pl.filter((_, i) => i % 2 === 0));
+      const left = xs.length ? Math.min(...xs) : 0, width = xs.length ? Math.max(...xs) - left : 0;
       for (const pl of g) {
         const pts = [];
         // A little slant and baseline drift so it reads as hand-made.
         const drift = rand.gauss() * 0.12;
-        for (let i = 0; i < pl.length; i += 2) pts.push([x + pl[i] + (6 - pl[i + 1]) * 0.08, y0 + pl[i + 1] + drift]);
+        for (let i = 0; i < pl.length; i += 2) pts.push([x - left + pl[i] + (6 - pl[i + 1]) * 0.08, y0 + pl[i + 1] + drift]);
         all.push(pts);
       }
-      x += ch === ' ' ? advance * 0.7 : advance;
+      x += ch === ' ' ? advance * 0.7 : Math.max(width, 0.6) + tracking;
     }
     maxW = Math.max(maxW, x - tracking + pad);
   });

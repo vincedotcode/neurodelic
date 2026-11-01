@@ -3,42 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neurodelic · Illustrations of the inside of a head</title>
-  <meta name="description" content="Neurodelic is a new illustration genre: 96 illustrations, 56 icons and a scribble typeface, all drawn by code. Browse, tune, copy the SVG and ship it. Free.">
-  <meta name="theme-color" content="#08070b">
+  <title>Neurodelic · Quiet body, loud mind</title>
+  <meta name="description" content="Neurodelic is an illustration genre for the moments in a product when someone is thinking. 1,024 illustrations in eight states of mind, endless new ones, 61 icons, a typeface and a UI kit, all drawn by code. Free to use.">
+  <meta name="theme-color" content="#EBEDEF">
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="canonical" href="https://neurodelic.vincedotcode.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Neurodelic · Illustrations of the inside of a head">
-  <meta property="og:description" content="A new illustration genre. 96 illustrations, 56 icons and a typeface, all drawn by code. Tune them, copy the SVG, ship.">
+  <meta property="og:site_name" content="Neurodelic">
+  <meta property="og:title" content="Neurodelic · Quiet body, loud mind">
+  <meta property="og:description" content="An illustration genre for the moments in a product when someone is thinking. 1,024 illustrations, endless new ones, icons, a typeface and a UI kit. All drawn by code, free to use.">
   <meta property="og:url" content="https://neurodelic.vincedotcode.com/">
   <meta property="og:image" content="https://neurodelic.vincedotcode.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:creator" content="@vinceerkadoo">
-  <link rel="preload" href="/fonts/Geist-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/BricolageGrotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/ui/neurodelic.css">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
-<body>
+<body class="nd-root">
   <a class="skip" href="#main">Skip to content</a>
   <header class="top">
-    <a href="#/" class="brand" aria-label="Neurodelic home"><span class="brand-mark" data-scrawl="NEURODELIC"></span></a>
-    <nav class="nav" aria-label="Main">
-      <a href="#/library">Library</a>
-      <a href="#/icons">Icons</a>
-      <a href="#/type">Type</a>
-      <a href="#/guide">Style guide</a>
-      <a href="#/use">Use it</a>
-    </nav>
+    <div class="top-in">
+      <a href="#/" class="brand" aria-label="Neurodelic, home"><span data-scrawl="NEURODELIC" data-size="17" data-seed="4"></span></a>
+      <nav class="nav" aria-label="Main">
+        <a class="nd-tab" href="#/gallery">Gallery</a>
+        <a class="nd-tab" href="#/make">Make</a>
+        <a class="nd-tab" href="#/icons">Icons</a>
+        <a class="nd-tab" href="#/type">Type</a>
+        <a class="nd-tab" href="#/ui">UI kit</a>
+        <a class="nd-tab" href="#/guide">Guide</a>
+        <a class="nd-tab" href="#/use">Use it</a>
+      </nav>
+    </div>
   </header>
-  <main id="main" tabindex="-1"><noscript><p class="wrap">Neurodelic draws everything live in your browser, so it needs JavaScript. The plain SVG files are in <a href="/art/">/art</a>.</p></noscript></main>
+  <main id="main" tabindex="-1"><noscript><p class="wrap">Neurodelic draws every picture live in your browser, so it needs JavaScript. The plain SVG files are in <a class="nd-link" href="/art/">/art</a>.</p></noscript></main>
   <footer class="foot">
     <div class="wrap foot-in">
-      <p>Made by <a href="https://www.vincedotcode.com" rel="author">Vince Erkadoo</a>. Every picture here is drawn by code. No stock, no image models.</p>
-      <p class="mono"><a href="https://github.com/vincedotcode/neurodelic">Source on GitHub</a> · <a href="#/use">License</a> · v<span data-version></span></p>
+      <p>Made by <a class="nd-link" href="https://www.vincedotcode.com" rel="author">Vince Erkadoo</a>. Every picture here is drawn by code. No stock, no image models.</p>
+      <p><a class="nd-link" href="https://github.com/vincedotcode/neurodelic">Source on GitHub</a> · <a class="nd-link" href="#/use">License</a> · v<span data-version></span></p>
     </div>
   </footer>
-  <div class="toast" role="status" aria-live="polite"></div>
+  <div class="nd-toast" role="status" aria-live="polite"></div>
 </body>
 </html>

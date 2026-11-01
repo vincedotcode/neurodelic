@@ -1,14 +1,15 @@
 {
   "name": "neurodelic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "A new illustration genre. Original procedural SVG illustrations, icons and a scribble typeface, with a library site to browse, customise, copy and download.",
+  "description": "Neurodelic: an illustration genre for the moments in a product when someone is thinking. 1,024 curated procedural SVG illustrations in eight states of mind, endless seeds, icons, a scribble typeface and a UI kit.",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "check:quick": "node scripts/check.mjs --quick"
   },
   "engines": { "node": ">=18" }
 }
