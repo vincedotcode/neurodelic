@@ -1,10 +1,13 @@
-// Technical checks, no dependencies: every illustration, icon and glyph renders,
-// is well-formed XML, contains no NaN/undefined, is deterministic and stays under a size budget.
-import { renderIllustration, catalog, ASPECTS } from '../src/render.js';
+// Technical checks, no dependencies: every gallery piece, icon and glyph renders, is well-formed XML,
+// contains no NaN/undefined, is deterministic and stays under a size budget. Every moment and state
+// is also drawn wide, tall and with extreme settings. Pass --quick to check one seed per pair.
+import { renderIllustration, catalog } from '../src/render.js';
 import { renderIcon, ICONS } from '../src/icons/render.js';
 import { ICON_STYLES, STATES } from '../src/core/tokens.js';
+import { MOMENTS } from '../src/scene.js';
 import { renderScrawl, CHARSET } from '../src/type/scrawl.js';
 
+const quick = process.argv.includes('--quick');
 let failures = 0, checked = 0;
 const fail = (what, why) => { failures++; console.error(`FAIL ${what}: ${why}`); };
 
@@ -32,31 +35,33 @@ function common(what, svg, budgetKB) {
   const wf = wellFormed(svg);
   if (wf) fail(what, wf);
   if (svg.length / 1024 > budgetKB) fail(what, `${(svg.length / 1024).toFixed(0)} KB > ${budgetKB} KB budget`);
+  return svg.length;
 }
-const strip = (s) => s.replace(/\bnd[a-z0-9]+\b/g, 'ID');
+const draw = (what, o, budget) => { try { return common(what, renderIllustration({ id: 'ndx', ...o }), budget); } catch (e) { fail(what, e.stack); return 0; } };
 
 const t0 = Date.now();
-let maxKB = 0, total = 0;
-for (const it of catalog()) {
-  for (const aspect of Object.keys(ASPECTS)) {
-    const what = `${it.key} (${aspect})`;
-    try {
-      const a = renderIllustration({ subject: it.subject, state: it.state, aspect, id: 'ndx' });
-      const b = renderIllustration({ subject: it.subject, state: it.state, aspect, id: 'ndx' });
-      if (a !== b) fail(what, 'not deterministic');
-      common(what, a, 400);
-      maxKB = Math.max(maxKB, a.length / 1024); total += a.length;
-      const st = STATES.find((s) => s.id === it.state);
-      for (const palette of Object.keys(st.palettes)) common(`${what} ${palette}`, renderIllustration({ subject: it.subject, state: it.state, aspect, palette, seed: 42, density: 1.6, hue: 90, animate: false }), 500);
-    } catch (e) { fail(what, e.stack); }
-  }
+let maxKB = 0, total = 0, n = 0;
+const items = quick ? catalog().filter((it) => it.seed === 1) : catalog();
+for (const it of items) {
+  const size = draw(it.key, it, 400);
+  maxKB = Math.max(maxKB, size / 1024); total += size; n++;
+}
+for (const m of MOMENTS) for (const st of STATES) {
+  const key = `${m.id}--${st.id}`;
+  const a = renderIllustration({ moment: m.id, state: st.id, seed: 1, id: 'ndx' });
+  if (a !== renderIllustration({ moment: m.id, state: st.id, seed: 1, id: 'ndx' })) fail(key, 'not deterministic');
+  draw(`${key} wide`, { moment: m.id, state: st.id, seed: 2, aspect: 'wide' }, 500);
+  draw(`${key} tall`, { moment: m.id, state: st.id, seed: 3, aspect: 'tall' }, 500);
+  const pals = Object.keys(st.palettes);
+  draw(`${key} extreme`, { moment: m.id, state: st.id, seed: 98765, palette: pals[m.id.length % pals.length], density: 1.6, hue: 90, animate: false }, 600);
 }
 for (const name of Object.keys(ICONS)) for (const s of ICON_STYLES) {
   try { common(`icon ${name} ${s.id}`, renderIcon(name, { style: s.id }), 24); } catch (e) { fail(`icon ${name}`, e.message); }
 }
 try { common('scrawl charset', renderScrawl(CHARSET, { style: 'neon' }), 400); } catch (e) { fail('scrawl', e.message); }
 for (const s of ICON_STYLES) try { common(`scrawl ${s.id}`, renderScrawl('Hello & 123?', { style: s.id }), 200); } catch (e) { fail('scrawl', e.message); }
+try { renderIllustration({ moment: 'nope', state: 'tangle' }); fail('unknown moment', 'did not throw'); } catch { /* expected */ }
 
-console.log(`${checked} renders checked in ${Date.now() - t0}ms. Largest illustration ${maxKB.toFixed(0)} KB, average ${(total / (catalog().length * 3) / 1024).toFixed(0)} KB.`);
+console.log(`${checked} renders checked in ${((Date.now() - t0) / 1000).toFixed(1)}s. Gallery pieces: ${n}, largest ${maxKB.toFixed(0)} KB, average ${(total / n / 1024).toFixed(0)} KB.`);
 if (failures) { console.error(`${failures} failures`); process.exit(1); }
 console.log('All checks passed.');

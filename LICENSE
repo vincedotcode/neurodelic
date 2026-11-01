@@ -3,7 +3,7 @@ Copyright (c) 2026 Vince Erkadoo
 
 This repository has two parts with two sets of terms.
 
-1. The code (everything in src/, site/ and scripts/) is under the MIT License:
+1. The code (everything in src/, site/, ui/ and scripts/) is under the MIT License:
 
    Permission is hereby granted, free of charge, to any person obtaining a copy
    of this software and associated documentation files (the "Software"), to deal

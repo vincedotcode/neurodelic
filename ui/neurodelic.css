@@ -1,0 +1,381 @@
+/*
+ * Neurodelic UI · the interface kit for the Neurodelic genre.
+ * Quiet body, loud mind: the interface is paper, ink and a ballpoint pen.
+ * Plain CSS, no build step. Classes start with nd-. Tokens are custom properties.
+ * https://neurodelic.vincedotcode.com/#/ui
+ */
+
+:root {
+  /* Paper: cool, like a proof print */
+  --nd-paper: #EBEDEF;
+  --nd-paper-raised: #F6F7F9;
+  --nd-paper-sunken: #DEE1E6;
+  /* Ink: blue-black, like a printout */
+  --nd-ink: #14152B;
+  --nd-ink-soft: #3D3E57;
+  --nd-ink-faint: #5C5D74;
+  --nd-rule: rgba(20, 21, 43, 0.16);
+  /* Pens: every mark a hand makes */
+  --nd-pen: #2B3BD6;
+  --nd-pen-press: #1D2AA6;
+  --nd-pen-wash: rgba(43, 59, 214, 0.12);
+  --nd-red-pen: #C2261C;
+  --nd-green-pen: #0C6E4C;
+
+  /* Type */
+  --nd-font: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --nd-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --nd-text-xs: 0.75rem;
+  --nd-text-sm: 0.875rem;
+  --nd-text-md: 1rem;
+  --nd-text-lg: 1.1875rem;
+  --nd-text-xl: 1.5rem;
+  --nd-text-2xl: 2rem;
+  --nd-text-3xl: 2.75rem;
+  --nd-text-display: clamp(2.75rem, 1.6rem + 4.6vw, 6rem);
+
+  /* Space: a 4px step */
+  --nd-1: 4px; --nd-2: 8px; --nd-3: 12px; --nd-4: 16px; --nd-5: 24px;
+  --nd-6: 32px; --nd-7: 48px; --nd-8: 64px; --nd-9: 96px; --nd-10: 128px;
+
+  /* Wobble: no corner is ever a perfect radius */
+  --nd-wob: 255px 14px 225px 12px / 12px 225px 14px 255px;
+  --nd-wob-alt: 14px 225px 12px 255px / 225px 12px 255px 14px;
+  --nd-wob-sm: 7px 11px 6px 12px / 12px 6px 11px 7px;
+  --nd-wob-round: 52% 48% 55% 45% / 47% 55% 45% 53%;
+  --nd-line: 1.5px;
+
+  /* Motion: exponential ease-out, never a bounce */
+  --nd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --nd-fast: 160ms;
+  --nd-slow: 480ms;
+
+  /* Marks drawn as masks, so they take currentColor */
+  --nd-mark-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='6' viewBox='0 0 24 6'%3E%3Cpath d='M0 3c3-2.5 6-2.5 9 0s6 2.5 9 0 4.5-1.8 6-1.2' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  --nd-mark-wave-ink: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='6' viewBox='0 0 24 6'%3E%3Cpath d='M0 3c3-2.5 6-2.5 9 0s6 2.5 9 0 4.5-1.8 6-1.2' fill='none' stroke='%2314152B' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  /* The loose second pass a hand makes round an edge. Stretches to any box; the stroke stays 1.3px. */
+  --nd-mark-pass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M1.6 2.2C30 1.1 70 2.4 98.4 1.3M97.9 1C98.9 30 98.1 70 98.9 98.3M99 98.1C70 99 30 98.2 1.4 99M1.9 99.1C1.1 70 2.1 30 1.2 1.1' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  --nd-mark-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3.5 10.8c1.6 1.2 3 2.7 4.2 4.6 2.2-4.6 5-8.3 8.8-11' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --nd-mark-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 5.2c3 .1 4.9 2 4.8 4.9-.2 2.9-2.3 4.8-5 4.6-2.8-.1-4.6-2.1-4.4-4.9.1-2.7 2-4.7 4.6-4.6z'/%3E%3C/svg%3E");
+  --nd-mark-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.6c1.8 1.6 3.4 3.3 5 5.2 1.6-2 3.2-3.7 5.1-5.4' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------- base */
+
+.nd, .nd-root {
+  background: var(--nd-paper);
+  color: var(--nd-ink);
+  font-family: var(--nd-font);
+  font-size: var(--nd-text-md);
+  line-height: 1.55;
+  font-optical-sizing: auto;
+  accent-color: var(--nd-pen);
+  caret-color: var(--nd-pen);
+  scrollbar-color: var(--nd-ink-faint) var(--nd-paper-sunken);
+  -webkit-font-smoothing: antialiased;
+}
+.nd ::selection, .nd-root ::selection { background: var(--nd-pen); color: var(--nd-paper-raised); }
+.nd :focus-visible, .nd-root :focus-visible { outline: 2px solid var(--nd-pen); outline-offset: 3px; }
+
+.nd-display {
+  font-family: var(--nd-font);
+  font-size: var(--nd-text-display);
+  font-weight: 800;
+  font-stretch: 78%;
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  margin: 0;
+}
+.nd-h1, .nd-h2, .nd-h3 { font-family: var(--nd-font); font-weight: 760; font-stretch: 84%; letter-spacing: -0.02em; line-height: 1.02; text-wrap: balance; margin: 0; }
+.nd-h1 { font-size: var(--nd-text-3xl); }
+.nd-h2 { font-size: var(--nd-text-2xl); }
+.nd-h3 { font-size: var(--nd-text-xl); font-stretch: 90%; }
+.nd-lede { font-size: var(--nd-text-lg); line-height: 1.5; color: var(--nd-ink-soft); max-width: 60ch; text-wrap: pretty; }
+.nd-small { font-size: var(--nd-text-sm); color: var(--nd-ink-faint); }
+.nd-code, .nd code, .nd kbd { font-family: var(--nd-mono); font-size: 0.86em; }
+.nd-num { font-variant-numeric: tabular-nums; }
+
+/* Links: a ballpoint underline that turns into a scribble on hover. */
+.nd-link, .nd-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--nd-pen);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--nd-fast) var(--nd-ease);
+}
+.nd-link:hover, .nd-prose a:hover { text-decoration-style: wavy; text-decoration-thickness: 1.2px; }
+
+/* The double edge: one firm line, one loose pass a hand makes round it. */
+.nd-edge { position: relative; border: var(--nd-line) solid currentColor; border-radius: var(--nd-wob); }
+.nd-edge::after {
+  content: ''; position: absolute; inset: -4px -3px -3px -4px;
+  background: currentColor; -webkit-mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat;
+  opacity: 0.45; pointer-events: none;
+  transition: transform var(--nd-slow) var(--nd-ease), opacity var(--nd-fast);
+}
+
+/* Proof marks: crop marks outside the corners of a plate, like a print waiting for sign-off. */
+.nd-proof { position: relative; }
+.nd-proof::before {
+  content: ''; position: absolute; inset: -14px; pointer-events: none; --m: var(--nd-ink-faint);
+  background:
+    linear-gradient(var(--m), var(--m)) left 0 top 14px / 8px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) left 14px top 0 / 1px 8px no-repeat,
+    linear-gradient(var(--m), var(--m)) right 0 top 14px / 8px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) right 14px top 0 / 1px 8px no-repeat,
+    linear-gradient(var(--m), var(--m)) left 0 bottom 14px / 8px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) left 14px bottom 0 / 1px 8px no-repeat,
+    linear-gradient(var(--m), var(--m)) right 0 bottom 14px / 8px 1px no-repeat,
+    linear-gradient(var(--m), var(--m)) right 14px bottom 0 / 1px 8px no-repeat;
+}
+.nd-slug { font: 500 var(--nd-text-xs)/1.4 var(--nd-mono); color: var(--nd-ink-faint); letter-spacing: 0.02em; }
+
+/* Ballpoint markup for words: a pen underline, and a red-pen correction. */
+.nd-pen-under { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7.5C40 4.6 90 5.2 140 4.4c22-.3 40 .2 57 1.6M24 10.2c40-2.2 92-2.6 150-1.6' fill='none' stroke='%232B3BD6' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom / 100% 0.2em no-repeat; padding-bottom: 0.06em; }
+.nd-redline { text-decoration: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 10' preserveAspectRatio='none'%3E%3Cpath d='M1 6.2C12 4.4 22 5.8 31 4.6S50 4 59 5.2' fill='none' stroke='%23C2261C' stroke-width='1.8' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left 58% / 60px 0.5em repeat-x; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+/* ---------------------------------------------------------------- button */
+
+.nd-btn {
+  --b-ink: var(--nd-ink);
+  --b-bg: transparent;
+  --b-fg: var(--nd-ink);
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--nd-2);
+  min-height: 44px; padding: 0 var(--nd-5);
+  font: 650 var(--nd-text-md)/1 var(--nd-font); font-stretch: 92%;
+  color: var(--b-fg); background: var(--b-bg);
+  border: var(--nd-line) solid var(--b-ink); border-radius: var(--nd-wob);
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background var(--nd-fast) var(--nd-ease), color var(--nd-fast) var(--nd-ease), transform var(--nd-fast) var(--nd-ease);
+}
+.nd-btn::after {
+  content: ''; position: absolute; inset: -4px -3px -3px -4px;
+  background: var(--b-ink); -webkit-mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat;
+  opacity: 0.5; pointer-events: none;
+  transition: transform var(--nd-slow) var(--nd-ease), opacity var(--nd-fast);
+}
+.nd-btn:hover::after { transform: rotate(-1.2deg) translate(1px, 1px); opacity: 0.8; }
+.nd-btn:active { transform: translateY(1px); }
+.nd-btn:focus-visible { outline: 2px solid var(--nd-pen); outline-offset: 6px; }
+.nd-btn--solid { --b-bg: var(--nd-ink); --b-fg: var(--nd-paper-raised); }
+.nd-btn--solid:hover { --b-bg: var(--nd-pen-press); --b-ink: var(--nd-pen-press); }
+.nd-btn--pen { --b-bg: var(--nd-pen); --b-fg: #fff; --b-ink: var(--nd-pen); }
+.nd-btn--pen:hover { --b-bg: var(--nd-pen-press); }
+.nd-btn--quiet { border-color: transparent; padding: 0 var(--nd-3); }
+.nd-btn--quiet::after { opacity: 0; }
+.nd-btn--quiet:hover { text-decoration: underline wavy var(--nd-pen) 1.2px; text-underline-offset: 0.3em; }
+.nd-btn--sm { min-height: 34px; padding: 0 var(--nd-4); font-size: var(--nd-text-sm); }
+.nd-btn--icon { width: 44px; padding: 0; }
+.nd-btn[disabled], .nd-btn[aria-disabled='true'] { opacity: 0.45; cursor: not-allowed; }
+.nd-btn[aria-busy='true'] { color: transparent; }
+.nd-btn[aria-busy='true']::before {
+  content: ''; position: absolute; width: 18px; height: 18px; border-radius: var(--nd-wob-round);
+  border: 2px solid var(--b-fg); border-right-color: transparent; animation: nd-spin 0.8s linear infinite;
+}
+.nd-btn svg { width: 18px; height: 18px; flex: none; }
+
+/* ---------------------------------------------------------------- fields */
+
+.nd-field { display: grid; gap: var(--nd-2); }
+.nd-label { font-weight: 650; font-size: var(--nd-text-sm); font-stretch: 92%; }
+.nd-hint { font-size: var(--nd-text-sm); color: var(--nd-ink-faint); }
+.nd-error { font-size: var(--nd-text-sm); color: var(--nd-red-pen); }
+.nd-input, .nd-textarea, .nd-select {
+  width: 100%; min-height: 44px; padding: 10px 14px;
+  font: 450 var(--nd-text-md)/1.4 var(--nd-font);
+  color: var(--nd-ink); background: var(--nd-paper-raised);
+  border: var(--nd-line) solid rgba(20, 21, 43, 0.55); border-radius: var(--nd-wob-sm);
+  transition: border-color var(--nd-fast) var(--nd-ease), box-shadow var(--nd-fast) var(--nd-ease);
+}
+.nd-textarea { min-height: 96px; resize: vertical; }
+.nd-input::placeholder, .nd-textarea::placeholder { color: var(--nd-ink-faint); }
+.nd-input:hover, .nd-textarea:hover, .nd-select:hover { border-color: var(--nd-ink); }
+.nd-input:focus, .nd-textarea:focus, .nd-select:focus { outline: none; border-color: var(--nd-pen); box-shadow: 0 0 0 4px var(--nd-pen-wash); }
+.nd-input[aria-invalid='true'], .nd-textarea[aria-invalid='true'] { border-color: var(--nd-red-pen); box-shadow: 0 0 0 4px rgba(194, 38, 28, 0.1); }
+.nd-input:disabled, .nd-textarea:disabled, .nd-select:disabled { opacity: 0.5; cursor: not-allowed; }
+.nd-select {
+  appearance: none; padding-right: 40px; cursor: pointer;
+  background-image: linear-gradient(var(--nd-ink), var(--nd-ink));
+  background-size: 0 0;
+}
+.nd-select-wrap { position: relative; display: block; }
+.nd-select-wrap::after {
+  content: ''; position: absolute; right: 12px; top: 50%; width: 18px; height: 18px; margin-top: -9px;
+  background: currentColor; -webkit-mask: var(--nd-mark-chevron) center / contain no-repeat; mask: var(--nd-mark-chevron) center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* Check, radio and switch: drawn, not stamped. */
+.nd-check, .nd-radio {
+  appearance: none; flex: none; width: 22px; height: 22px; margin: 0;
+  display: inline-grid; place-content: center; cursor: pointer;
+  background: var(--nd-paper-raised); border: var(--nd-line) solid var(--nd-ink); border-radius: var(--nd-wob-sm);
+  transition: background var(--nd-fast) var(--nd-ease);
+}
+.nd-radio { border-radius: var(--nd-wob-round); }
+.nd-check::before, .nd-radio::before {
+  content: ''; width: 20px; height: 20px; background: var(--nd-pen);
+  -webkit-mask: var(--nd-mark-tick) center / contain no-repeat; mask: var(--nd-mark-tick) center / contain no-repeat;
+  transform: scale(0); transition: transform var(--nd-fast) var(--nd-ease);
+}
+.nd-radio::before { -webkit-mask-image: var(--nd-mark-dot); mask-image: var(--nd-mark-dot); }
+.nd-check:checked::before, .nd-radio:checked::before { transform: scale(1); }
+.nd-check:focus-visible, .nd-radio:focus-visible { outline: 2px solid var(--nd-pen); outline-offset: 3px; }
+.nd-switch {
+  appearance: none; flex: none; position: relative; width: 46px; height: 26px; margin: 0; cursor: pointer;
+  background: var(--nd-paper-sunken); border: var(--nd-line) solid var(--nd-ink); border-radius: 30px 26px 28px 24px / 24px 28px 26px 30px;
+  transition: background var(--nd-fast) var(--nd-ease);
+}
+.nd-switch::before {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 17px; height: 17px;
+  background: var(--nd-ink); border-radius: var(--nd-wob-round);
+  transition: transform var(--nd-slow) var(--nd-ease), background var(--nd-fast);
+}
+.nd-switch:checked { background: var(--nd-pen); border-color: var(--nd-pen); }
+.nd-switch:checked::before { transform: translateX(20px) rotate(90deg); background: #fff; }
+.nd-switch:focus-visible { outline: 2px solid var(--nd-pen); outline-offset: 3px; }
+.nd-choice { display: inline-flex; align-items: center; gap: var(--nd-3); cursor: pointer; }
+
+/* Range: a pen line with a blot for a handle. The line is a background, so the handle is never masked. */
+.nd-range {
+  appearance: none; -webkit-appearance: none; width: 100%; height: 26px; margin: 0; cursor: pointer;
+  background: var(--nd-mark-wave-ink) left center / 24px 6px repeat-x;
+}
+.nd-range::-webkit-slider-runnable-track { height: 26px; background: transparent; }
+.nd-range::-moz-range-track { height: 26px; background: transparent; }
+.nd-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 20px; height: 20px; margin-top: 3px;
+  background: var(--nd-pen); border: 2px solid var(--nd-paper-raised); border-radius: var(--nd-wob-round);
+  box-shadow: 0 0 0 1px var(--nd-pen), 0 2px 4px rgba(20, 21, 43, 0.3);
+  transition: transform var(--nd-fast) var(--nd-ease);
+}
+.nd-range::-moz-range-thumb { width: 18px; height: 18px; background: var(--nd-pen); border: 2px solid var(--nd-paper-raised); border-radius: var(--nd-wob-round); box-shadow: 0 0 0 1px var(--nd-pen); }
+.nd-range:hover::-webkit-slider-thumb, .nd-range:active::-webkit-slider-thumb { transform: scale(1.12) rotate(20deg); }
+.nd-range:focus-visible { outline: 2px solid var(--nd-pen); outline-offset: 4px; }
+.nd-range:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------- choice rows */
+
+/* Segmented and tabs: the chosen one gets circled in pen. */
+.nd-seg, .nd-tabs { display: inline-flex; flex-wrap: wrap; gap: var(--nd-1); padding: 0; margin: 0; list-style: none; }
+.nd-seg button, .nd-tabs button, .nd-tab {
+  position: relative; min-height: 38px; padding: 0 var(--nd-4);
+  font: 600 var(--nd-text-sm)/1 var(--nd-font); font-stretch: 92%; color: var(--nd-ink-soft);
+  background: none; border: 0; cursor: pointer; border-radius: var(--nd-wob-sm);
+  transition: color var(--nd-fast) var(--nd-ease);
+}
+.nd-seg button:hover, .nd-tabs button:hover { color: var(--nd-ink); }
+.nd-seg button::after, .nd-tabs button::after, .nd-tab::after {
+  content: ''; position: absolute; inset: 2px -1px 1px -2px;
+  border: 1.8px solid var(--nd-pen); border-radius: var(--nd-wob-round);
+  transform: rotate(-3deg) scale(0.6); opacity: 0;
+  transition: transform var(--nd-slow) var(--nd-ease), opacity var(--nd-fast) var(--nd-ease);
+  pointer-events: none;
+}
+.nd-seg [aria-pressed='true'], .nd-tabs [aria-selected='true'], .nd-tab[aria-current] { color: var(--nd-ink); }
+.nd-seg [aria-pressed='true']::after, .nd-tabs [aria-selected='true']::after, .nd-tab[aria-current]::after { transform: rotate(-3deg) scale(1); opacity: 1; }
+
+/* Tags. */
+.nd-tag {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 10px;
+  font: 600 var(--nd-text-xs)/1 var(--nd-font); letter-spacing: 0.01em;
+  color: var(--nd-ink); background: var(--nd-paper-raised);
+  border: 1px solid var(--nd-rule); border-radius: var(--nd-wob-sm);
+}
+.nd-tag--pen { color: var(--nd-pen); border-color: currentColor; background: var(--nd-pen-wash); }
+.nd-tag--red { color: var(--nd-red-pen); border-color: currentColor; }
+.nd-tag--green { color: var(--nd-green-pen); border-color: currentColor; }
+
+/* ---------------------------------------------------------------- surfaces */
+
+/* Plate: the frame for a piece of art. A paper margin and a hairline, no rounding. */
+.nd-plate { display: block; margin: 0; padding: 6px; background: var(--nd-paper-raised); box-shadow: 0 1px 0 var(--nd-rule), 0 10px 24px -14px rgba(20, 21, 43, 0.4); }
+.nd-plate > img, .nd-plate > svg { display: block; width: 100%; height: auto; }
+.nd-plate figcaption { padding: var(--nd-2) 2px 0; font-size: var(--nd-text-sm); color: var(--nd-ink-soft); }
+
+/* Panel: a sketched outline for grouping, never nested. */
+.nd-panel { position: relative; padding: var(--nd-5); border: var(--nd-line) solid var(--nd-ink); border-radius: var(--nd-wob); background: var(--nd-paper-raised); }
+.nd-panel::after { content: ''; position: absolute; inset: -5px -3px -3px -5px; background: var(--nd-ink); -webkit-mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; opacity: 0.35; pointer-events: none; }
+
+/* Notes: messages in the pen colour that fits. */
+.nd-note {
+  position: relative; display: grid; grid-template-columns: auto 1fr; gap: var(--nd-3); align-items: start;
+  padding: var(--nd-4) var(--nd-5); color: var(--nd-ink);
+  background: var(--nd-paper-raised); border: var(--nd-line) solid var(--n-c, var(--nd-pen)); border-radius: var(--nd-wob);
+}
+.nd-note::after { content: ''; position: absolute; inset: -4px -2px -2px -4px; background: var(--n-c, var(--nd-pen)); -webkit-mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; mask: var(--nd-mark-pass) 0 0 / 100% 100% no-repeat; opacity: 0.45; pointer-events: none; }
+.nd-note > svg { width: 22px; height: 22px; color: var(--n-c, var(--nd-pen)); margin-top: 1px; }
+.nd-note strong { display: block; font-weight: 700; }
+.nd-note--error { --n-c: var(--nd-red-pen); }
+.nd-note--ok { --n-c: var(--nd-green-pen); }
+
+/* Toast. */
+.nd-toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 50;
+  display: inline-flex; align-items: center; gap: var(--nd-2); padding: 12px 20px;
+  font: 600 var(--nd-text-sm)/1.2 var(--nd-font); color: var(--nd-paper-raised); background: var(--nd-ink);
+  border-radius: var(--nd-wob); box-shadow: 0 12px 28px -12px rgba(20, 21, 43, 0.6);
+  transform: translate(-50%, 140%); opacity: 0;
+  transition: transform var(--nd-slow) var(--nd-ease), opacity var(--nd-fast);
+}
+.nd-toast.is-on { transform: translate(-50%, 0); opacity: 1; }
+
+/* Dialog: uses the native <dialog>. */
+.nd-dialog {
+  width: min(520px, calc(100vw - 32px)); padding: var(--nd-6); color: var(--nd-ink);
+  background: var(--nd-paper-raised); border: var(--nd-line) solid var(--nd-ink); border-radius: var(--nd-wob);
+  box-shadow: 0 30px 60px -24px rgba(20, 21, 43, 0.55);
+}
+.nd-dialog::backdrop { background: rgba(235, 237, 239, 0.72); backdrop-filter: blur(2px); }
+.nd-dialog[open] { animation: nd-in var(--nd-slow) var(--nd-ease); }
+.nd-dialog-actions { display: flex; justify-content: flex-end; gap: var(--nd-3); margin-top: var(--nd-5); }
+
+/* Tooltip: add data-tip to anything. */
+[data-tip] { position: relative; }
+[data-tip]::before {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 10px); z-index: 20;
+  padding: 6px 10px; white-space: nowrap; pointer-events: none;
+  font: 600 var(--nd-text-xs)/1.2 var(--nd-font); color: var(--nd-paper-raised); background: var(--nd-ink);
+  border-radius: var(--nd-wob-sm); transform: translate(-50%, 4px); opacity: 0;
+  transition: opacity var(--nd-fast) var(--nd-ease), transform var(--nd-fast) var(--nd-ease);
+}
+[data-tip]:hover::before, [data-tip]:focus-visible::before { opacity: 1; transform: translate(-50%, 0); }
+
+/* Progress: a pen line being drawn. */
+.nd-progress { appearance: none; width: 100%; height: 8px; border: 0; background: var(--nd-paper-sunken); border-radius: 8px 4px 6px 3px; overflow: hidden; }
+.nd-progress::-webkit-progress-bar { background: var(--nd-paper-sunken); }
+.nd-progress::-webkit-progress-value { background: var(--nd-pen); border-radius: 6px 2px 5px 3px; transition: width var(--nd-slow) var(--nd-ease); }
+.nd-progress::-moz-progress-bar { background: var(--nd-pen); }
+
+/* Loader: one scribbled loop going round. Use the SVG from the docs. */
+.nd-loader { width: 28px; height: 28px; color: var(--nd-pen); }
+.nd-loader path { stroke-dasharray: 60 120; animation: nd-draw 1.4s var(--nd-ease) infinite; }
+
+/* Avatar: a head in a hand-drawn ring. */
+.nd-avatar { display: inline-block; width: 44px; height: 44px; border-radius: var(--nd-wob-round); overflow: hidden; border: var(--nd-line) solid var(--nd-ink); background: var(--nd-paper-sunken); flex: none; }
+.nd-avatar > img, .nd-avatar > svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nd-avatar--lg { width: 72px; height: 72px; }
+
+/* Divider: a ballpoint line, not a rule. */
+.nd-divider { height: 6px; border: 0; margin: var(--nd-6) 0; background: var(--nd-rule); -webkit-mask: var(--nd-mark-wave) left center / 24px 6px repeat-x; mask: var(--nd-mark-wave) left center / 24px 6px repeat-x; }
+.nd-divider--ink { background: var(--nd-ink); }
+
+/* Keys. */
+.nd-kbd { display: inline-block; min-width: 24px; padding: 2px 7px; font: 500 0.8em/1.4 var(--nd-mono); text-align: center; color: var(--nd-ink); background: var(--nd-paper-raised); border: 1px solid var(--nd-ink); border-bottom-width: 2px; border-radius: var(--nd-wob-sm); }
+
+/* Empty state: a picture of the moment, a heading that says what happened, one way forward. */
+.nd-empty { display: grid; justify-items: center; gap: var(--nd-4); max-width: 420px; margin: 0 auto; text-align: center; }
+.nd-empty .nd-plate { width: min(240px, 70vw); }
+.nd-empty p { margin: 0; color: var(--nd-ink-soft); }
+
+/* ---------------------------------------------------------------- motion */
+
+@keyframes nd-spin { to { transform: rotate(360deg); } }
+@keyframes nd-draw { 0% { stroke-dashoffset: 180; } 100% { stroke-dashoffset: 0; } }
+@keyframes nd-in { from { opacity: 0; transform: translateY(10px) rotate(-0.4deg); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .nd *, .nd-root *, .nd-toast, .nd-dialog { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

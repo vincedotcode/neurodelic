@@ -1,3 +1,9 @@
+This folder holds two fonts, both under the SIL Open Font License, Version 1.1:
+
+Bricolage Grotesque (BricolageGrotesque-latin.woff2)
+Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
+
+Geist Mono (GeistMono-Regular.ttf)
 Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

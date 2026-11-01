@@ -1,95 +1,145 @@
-// Mark-making primitives: the hand of the genre.
-// Scribble passes, wandering fills, dot fields and grain.
+// Mark-making shared by the renderers: contours of bodies, wobbly hand
+// lines, stipple sampling, hatching and paper grain.
 
-import { wobble, linePath, smoothPath, resample, n, bbox } from './util.js';
+import { isolines, cleanLoop, loopLength } from './field.js';
+import { P } from './path.js';
 
-// One line drawn as several loose passes, like a pen going over it again.
-export function scribbleLine(pts, rand, { passes = 3, amp = 1.6, width = 1, color = '#fff', opacity = 0.9, smooth = true, closed = false, step = 4 } = {}) {
-  let out = '';
-  for (let p = 0; p < passes; p++) {
-    const src = closed ? [...pts, pts[0]] : pts;
-    const w = wobble(src, amp, rand, step);
-    const d = smooth ? smoothPath(w, false) : linePath(w);
-    const sw = width * rand.range(0.7, 1.15);
-    out += `<path d="${d}" fill="none" stroke="${color}" stroke-width="${n(sw)}" stroke-opacity="${n(opacity * rand.range(0.75, 1))}"/>`;
+// Closed outlines of the bodies at an inset (px inside the edge).
+export function bodyLoops(S, inset = 0, minLen = 12) {
+  const key = 'loops:' + inset;
+  S.cache = S.cache || {};
+  if (!S.cache[key]) {
+    S.cache[key] = isolines(S.body, inset)
+      .map((l) => ({ pts: cleanLoop(l.pts, l.closed, 0.4), closed: l.closed }))
+      .filter((l) => loopLength(l.pts) > minLen);
   }
+  return S.cache[key];
+}
+
+export function bodyPath(S, inset = 0) {
+  return bodyLoops(S, inset).map((l) => P(l.pts, l.closed)).join('');
+}
+
+// Any grid's region outline as path data (value >= level).
+export function regionPath(grid, level, tol = 0.45, minLen = 6) {
+  let d = '';
+  for (const l of isolines(grid, level)) {
+    const pts = cleanLoop(l.pts, l.closed, tol);
+    if (loopLength(pts) > minLen) d += P(pts, l.closed);
+  }
+  return d;
+}
+
+// Direction along the body's contour lines.
+export function tangent(S, x, y) {
+  const [gx, gy] = S.body.grad(x, y, 3);
+  return Math.atan2(gy, gx) + Math.PI / 2;
+}
+
+// Resample a polyline to an even step.
+export function resample(pts, step) {
+  if (pts.length < 2) return pts.slice();
+  const out = [pts[0]];
+  let carry = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
+    const seg = Math.hypot(bx - ax, by - ay);
+    let t = step - carry;
+    while (t <= seg) {
+      out.push([ax + ((bx - ax) * t) / seg, ay + ((by - ay) * t) / seg]);
+      t += step;
+    }
+    carry = seg - (t - step);
+  }
+  const last = pts[pts.length - 1];
+  if (out[out.length - 1] !== last) out.push(last);
   return out;
 }
 
-// A wandering pen inside a region: starts where `inside` is true and turns back at the edge.
-export function wanderFill(rand, inside, bounds, { walks = 20, steps = 140, stepLen = 3.2, turn = 0.55 } = {}) {
-  const lines = [];
-  const { x0, y0, x1, y1 } = bounds;
-  for (let w = 0; w < walks; w++) {
-    let x, y, tries = 0;
-    do { x = rand.range(x0, x1); y = rand.range(y0, y1); tries++; } while (!inside(x, y) && tries < 200);
-    if (tries >= 200) continue;
-    let a = rand.range(0, Math.PI * 2), da = 0;
-    const pts = [[x, y]];
-    for (let s = 0; s < steps; s++) {
-      da = da * 0.8 + rand.gauss() * turn * 0.45;
-      a += da;
-      let nx = x + Math.cos(a) * stepLen, ny = y + Math.sin(a) * stepLen;
-      if (!inside(nx, ny)) {
-        a += Math.PI * rand.range(0.6, 1.4);
-        da = 0;
-        nx = x + Math.cos(a) * stepLen; ny = y + Math.sin(a) * stepLen;
-        if (!inside(nx, ny)) continue;
-      }
-      x = nx; y = ny;
-      pts.push([x, y]);
-    }
-    if (pts.length > 3) lines.push(pts);
+// A hand-drawn version of a line: drift that wanders like a real pen.
+export function handLine(pts, rand, amp = 1.2, step = 3, closed = false) {
+  const src = closed ? [...pts, pts[0]] : pts;
+  const rs = resample(src, step);
+  let ox = rand.gauss() * amp, oy = rand.gauss() * amp;
+  return rs.map(([x, y]) => {
+    ox = ox * 0.9 + rand.gauss() * amp * 0.25;
+    oy = oy * 0.9 + rand.gauss() * amp * 0.25;
+    return [x + ox, y + oy];
+  });
+}
+
+// Cut a line into a few dashes with gaps, like a pen that lifts.
+export function breakLine(pts, rand, keep = 0.85) {
+  const out = [];
+  let cur = [];
+  for (const p of pts) {
+    if (rand() > keep && cur.length > 3) { out.push(cur); cur = []; continue; }
+    cur.push(p);
   }
-  return lines;
+  if (cur.length > 1) out.push(cur);
+  return out;
 }
 
-// Many dots in one path: each "M x y h0" with a round cap is a dot.
-export function dotPath(points, { r = 1, color = '#000', opacity = 1 } = {}) {
-  if (!points.length) return '';
-  let d = '';
-  for (const [x, y] of points) d += `M${n(x)} ${n(y)}h0`;
-  return `<path d="${d}" stroke="${color}" stroke-width="${n(r * 2)}" stroke-linecap="round" stroke-opacity="${n(opacity)}" fill="none"/>`;
-}
-
-// Rejection-sample points from a density field.
-export function sampleField(rand, field, bounds, tries, gain = 1) {
+// Stipple: jittered grid sampled against a density function (0..1).
+export function stipple(W, H, spacing, density, rand) {
   const pts = [];
-  const { x0, y0, x1, y1 } = bounds;
-  for (let i = 0; i < tries; i++) {
-    const x = rand.range(x0, x1), y = rand.range(y0, y1);
-    const v = field(x, y);
-    if (v > 0 && rand() < v * gain) pts.push([x, y, v]);
+  for (let y = spacing / 2; y < H; y += spacing) {
+    for (let x = spacing / 2; x < W; x += spacing) {
+      const px = x + (rand() - 0.5) * spacing * 1.1, py = y + (rand() - 0.5) * spacing * 1.1;
+      const d = density(px, py);
+      if (d > 0 && rand() < d) pts.push([px, py]);
+    }
   }
   return pts;
 }
 
-export function dotsAlong(pts, rand, { step = 2.2, spread = 1.4 } = {}) {
-  return resample(pts, step).map(([x, y]) => [x + rand.gauss() * spread, y + rand.gauss() * spread]);
+// Short strokes laid along an angle field.
+export function hatch(W, H, spacing, { angle, length, keep = () => 1, jitter = 0.4 }, rand) {
+  const lines = [];
+  for (let y = 0; y < H + spacing; y += spacing) {
+    for (let x = 0; x < W + spacing; x += spacing) {
+      const px = x + (rand() - 0.5) * spacing * 1.6, py = y + (rand() - 0.5) * spacing * 1.6;
+      const k = keep(px, py);
+      if (k <= 0 || rand() > k) continue;
+      const a = angle(px, py) + rand.gauss() * jitter * 0.3;
+      const l = length(px, py) * (0.6 + rand() * 0.8);
+      lines.push([[px - Math.cos(a) * l * 0.5, py - Math.sin(a) * l * 0.5], [px + Math.cos(a) * l * 0.5, py + Math.sin(a) * l * 0.5]]);
+    }
+  }
+  return lines;
 }
 
-export function polyPath(poly, smooth = true) {
-  return smooth ? smoothPath(poly, true) : linePath(poly, true);
+export const pathOf = (lines, closed = false) => lines.map((l) => P(l, closed)).join('');
+
+// Paper and film grain as an SVG filter: grey noise blended over the picture.
+export function grain(id, { freq = 0.85, opacity = 0.25, mode = 'overlay', seed = 1, octaves = 2 } = {}) {
+  return `<filter id="${id}" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">`
+    + `<feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="${octaves}" seed="${seed}" stitchTiles="stitch" result="n"/>`
+    + `<feColorMatrix in="n" type="saturate" values="0" result="g"/>`
+    + `<feComponentTransfer in="g" result="a"><feFuncA type="linear" slope="0" intercept="${opacity}"/></feComponentTransfer>`
+    + `<feBlend in="a" in2="SourceGraphic" mode="${mode}"/></filter>`;
 }
 
-export function figurePath(fig, smooth = true) {
-  return fig.polys.map((p) => polyPath(p, smooth)).join('');
+// Roughen edges, like paint or torn paper.
+export function rough(id, { freq = 0.05, scale = 3, seed = 1 } = {}) {
+  return `<filter id="${id}" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="2" seed="${seed}" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/></filter>`;
 }
 
-export function figuresBounds(figs, pad = 0) {
-  const b = bbox(figs.flatMap((f) => f.polys));
-  return { x0: b.x0 - pad, y0: b.y0 - pad, x1: b.x1 + pad, y1: b.y1 + pad };
+export function blur(id, sd, pad = 30) {
+  return `<filter id="${id}" x="-${pad}%" y="-${pad}%" width="${100 + pad * 2}%" height="${100 + pad * 2}%"><feGaussianBlur stdDeviation="${sd}"/></filter>`;
 }
 
-// Film grain as an SVG filter (fractal noise, desaturated).
-export function grainFilter(id, { freq = 0.9, octaves = 2, seed = 1 } = {}) {
-  return `<filter id="${id}" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="${octaves}" seed="${seed % 1000}" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>`;
+// Colour helpers.
+export function mix(a, b, t) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const r = Math.round(((pa >> 16) & 255) * (1 - t) + ((pb >> 16) & 255) * t);
+  const g = Math.round(((pa >> 8) & 255) * (1 - t) + ((pb >> 8) & 255) * t);
+  const bl = Math.round((pa & 255) * (1 - t) + (pb & 255) * t);
+  return '#' + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1).toUpperCase();
 }
 
-export function blurFilter(id, sd) {
-  return `<filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${sd}"/></filter>`;
-}
-
-export function roughFilter(id, { freq = 0.04, scale = 6, seed = 1 } = {}) {
-  return `<filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="2" seed="${seed % 1000}"/><feDisplacementMap in="SourceGraphic" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+export function ramp(colors, t) {
+  t = Math.max(0, Math.min(1, t)) * (colors.length - 1);
+  const i = Math.min(colors.length - 2, Math.floor(t));
+  return mix(colors[i], colors[i + 1], t - i);
 }
